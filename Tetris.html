@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8">
+
+        <style>
+            body {
+                user-select: none;
+            }
+            canvas {
+                border-radius: 6px;
+            }
+            label {
+                font-size: 20px;
+                width: 100%;
+            }
+            .jelly {
+                top: 90%;
+                left: 90%;
+                animation-duration: .3s;
+                animation-name: jelly;
+                animation-timing-function: ease;
+                animation-iteration-count: infinite;
+            }
+            #game-ui {
+                display: flex;
+                justify-content: center;
+            }
+            #stage {
+                position: relative;
+                border: 2px solid white;
+                border-radius: 5px;
+                height: 1063px;
+                width: 533px;
+                background: #EEEEEE;
+                display: flex;
+                justify-content: center;
+            }
+            .mino {
+                position: absolute;
+                width: 50px;
+                height: 50px;
+                margin: 2px;
+                border-radius: 6px;
+                z-index: 2;
+            }
+            .shadow {
+                z-index: 1;                
+            }
+            .leftSideContainer {
+                margin: 30px;
+            }
+            .scoreContainer {
+                width: 160px;
+                height: 100px;
+                background: rgb(185 235 127);
+                border-radius: 5px;
+                margin-bottom: 30px;
+            }
+            .scoreTitle {
+                width: 100%;
+                height: 40px;
+                background: rgb(135 185 77);
+                border-radius: 5px;
+                display: flex;
+            }
+            .score-view {
+                width: 100%;
+                height: 100%;
+            }
+            .lineContainer {
+                widtH: 160px;
+                height: 100px;
+                background: rgb(255 251 132);
+                border-radius: 5px;
+            }
+            .lineTitle {
+                width: 160px;
+                height: 40px;
+                background: rgb(255 213 3);
+                border-radius: 5px;
+                text-align: center;
+            }
+            .holdContainer {
+                width: 160px;
+                height: 200px;
+                background: #dee4ff;
+                margin-bottom: 30px;
+                border-radius: 5px;
+            }
+            .gameUILabel {
+                font-weight: 600;
+                font-size: 28px;
+                text-align: center;
+            }
+            .holdTitle {
+                width: 100%;
+                height: 40px;
+                background: #5490ff;
+                border-radius: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .hold-view {
+                width: 100%;
+                height: 100%;
+            }
+            .previewContainer {
+                width: 160px;
+                height: 480px;
+                background: #ffa8cd;
+                border-radius: 5px;
+                margin: 30px;
+            }
+            .previewTitle {
+                width: 100%;
+                height: 40px;
+                background: #ff6e6e;
+                border-radius: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .preview-view {
+                width: 100%;
+                height: 100%;
+            }
+            .menuButtonContainer {
+                display: flex;
+                justify-content: space-evenly;
+                align-items: center;
+                flex-direction: column;
+            }
+            .menuButton {
+                font-weight: 600;
+                font-size: 40px;
+                width: 350px;
+                height: 50px;
+                border-radius: 10px;
+                text-align: center;
+                padding: 10px;
+                cursor: pointer;
+                transition: all .25s ease;
+            }
+            .menuButton:hover {
+                transform: scale(0.9,0.9);
+            }
+            .startGameButton {
+                background: rgba(204, 204, 255, 1);
+                border: 5px solid rgb( 154, 154, 205);
+                color: rgb(104, 104, 155);
+            }
+            .configButton {
+                background: rgba(255, 153, 204, 1);
+                border: 5px solid rgb(205, 103, 154);
+                color: rgb(155, 53, 104);
+            }
+            .leaderBoardButton {
+                background: rgba(204, 153, 255, 1);
+                border: 5px solid rgb(154, 103, 205);
+                color: rgb(104, 53, 155);
+            }
+            .creditButton {
+                background: rgb(84, 144, 255);
+                color: rgb(34, 94, 205);
+                border: 5px solid rgb(34, 94, 205);
+            }
+            .popup-background {
+                z-index: 13;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: fixed;
+                display: flex;
+                justify-content: center;
+                background: rgba(0,0,0,0.3);
+                user-select: none;
+            }
+            .popup-container {
+                height: fit-content;
+                width: 500px;
+                max-height: 100%;
+                border-radius: 4px;
+                box-shadow: 0 12.8px 28.8px rgb(0 0 0 / 14%), 0px 0px 9.2px rgb(0 0 0 / 12%);
+                background: #FFFFFF;
+                margin-top: auto;
+                padding: 16px;
+                animation-name: popup;
+                animation-duration: .25s;
+                animation-timing-function: ease;
+            }
+            .popup-container-leaderBoard {
+                width: 800px;
+            }
+            .popup-top {
+                display: flex;
+                justify-content: space-between;
+            }
+            .popup-title {
+                font-size: 30px;
+                line-height: 28px;
+                color: #2B2B2B;
+                margin-bottom: 18px;
+                font-weight: 600;
+            }
+            .popup-content {
+                height: fit-content;
+                display: flex;
+                flex-direction: column;
+            }
+            .popup-content-element {
+                width: 100%;
+                height: fit-content;
+                display: flex;
+                
+                
+                margin: 10px;
+            justify-content: space-evenly;align-items: center;}
+            .config-buttonSetting-container {
+                width: 40%;
+            }
+            .config-buttonSetting {
+                width: fit-content;
+                height: 100%;
+                font-size: 20px;
+                margin-left: 10px;
+                border: 2px solid #8B8B8B;
+                border-radius: 5px;
+                padding: 5px;
+                color: #ABABAB;
+                cursor: pointer;
+            }
+            .popup-button-container {
+                display: flex;
+                justify-content: center;
+                margin-top: 20px;
+            }
+            .popup-button {
+                width: 40%;
+                height: 50px;
+                display: flex;
+                font-size: 22px;
+                justify-content: center;
+                padding: 6px 0 6px 0;
+                border-radius: 7px;
+                border: 0;
+                font-weight: 600;
+                margin-right: 10px;
+                transition: background .5s ease;
+                align-items: center;
+                cursor: pointer;
+            }
+            .popup-button-accept {
+                background: #0078D4;
+                color: white;
+            }
+            .popup-chapter {
+                font-size: 22px;
+                font-weight: 600;
+                margin: 10px;
+            }
+            .popup-content {
+                font-size: 20px;
+                margin: 10px;
+            }
+            .popup-newRecord {
+                z-index: 19;
+            }
+            .config-change-button {
+                background: transparent;
+                cursor: pointer;
+                border: 0;
+                border-radius: 5px;
+                transition: background .5s ease;
+                padding: 10px;
+                margin-left: 10px;
+                margin-right: 10px;
+            }
+            .config-change-button:hover {
+                background: #EAEAEA;
+            }
+            .config-default-button-container {
+                display: flex;
+            }
+            .messagePopup-background {
+                z-index: 18;
+                user-select: none;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                position: fixed;
+                justify-content: center;
+                background: rgba(40, 40, 40, 0.5);
+            }
+            .messagePopup-container {
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                width: fit-content;
+                height: 100%;
+            }
+            .messagePopup-title {
+                font-size: 70px;
+                color: white;
+                font-weight: 650;
+                text-align: center;
+            }
+            .messagePopup-content {
+                color: white;
+                font-size: 30px;
+                font-weight: 550;
+                margin-bottom: 12px;
+            }
+            .messagePopup-keyBox {
+                border: 2px solid #FFFFFF;
+                border-radius: 4px;
+                color: white;
+                margin-right: 10px;
+                padding: 0px 10px 0px 10px;
+            }
+            .devider-line {
+                height: 0;
+                width: 100%;
+                border: none;
+                border-top: 1px solid #E2E2E2;
+            }
+            .leaderBoard-rank-container {
+                width: 100%;
+                height: 40px;
+                display: flex;
+            }
+            .leaderBoard-rank-medal {
+                height: 100%;
+                width: 7%;
+                display: flex;
+                align-items: center;
+            }
+            .leaderBoard-rank-box {
+                width: 93%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: nowrap;
+            }
+            .leaderBoard-rank-text {
+                font-size: 20px;
+                margin-right: 30px;
+                width: 60%;
+            }
+            .clearMessage {
+                font-size: 40px;
+                color: #F3CC00;
+                font-weight: 600;
+                text-align: center;
+            }
+            .clearMessageContainer {
+                position: absolute;
+                top: 50%;
+                z-index: 3;
+                animation-name: slideUp;
+                animation-duration: 1.5s;
+                animation-timing-function: cubic-bezier(0.48, -0.01, 0, 0.99);
+            }
+            .input-custom {
+                font-size: 20px;
+                height: 40px;
+                width: 450px;
+                padding-left: 5px;
+                border: 0;
+                transition: all .2s ease;
+                border-bottom: 1px solid #8D8D8D;
+                border-radius: 4px;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
+            }
+            .input-custom:hover {
+                box-shadow: 0px 12.8px 28.8px rgb(0 0 0 / 14%), 0px 0px 9.2px rgb(0 0 0 / 12%);
+            }
+            .input-custom:focus {
+                outline: none;
+                background: #E8E8E8;
+            }
+            @keyframes popup {
+                0% {
+                    transform: scale(1.1, 0.9);
+                }
+                50% {
+                    transform: scale(1.2, 0.8);
+                }
+                100% {
+                    transform: scale(1, 1);
+                }
+            }
+            @keyframes slideUp {
+                0% {
+                    opacity: 0;
+                    top: 55%;
+                }
+                20% {
+                    opacity: 1;
+                    top: 50%;
+                }
+                90% {
+                    opacity: 1;
+                    top: 50%;
+                }
+                100% {
+                    opacity: 0;
+                    top: 45%;
+                }
+            }
+            @keyframes stack {
+                0% {
+                    transform: scale(1.3, 0.9);
+                    border-radius: 12px;
+                }
+                50% {
+                    transform: scale(1,1);
+                    border-radius: 6px;
+                }
+            }
+            @keyframes jelly {
+                0% {
+                    transform: scale(1.1, 0.9);
+                    border-radius: 10px;
+                }
+                50% {
+                    transform: scale(1.2, 0.8);
+                    border-radius: 20px;
+                }
+                100% {
+                    transform: scale(1, 1);
+                    border-radius: 5px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="game-ui">
+            <div class="leftSideContainer">
+                <div class="holdContainer">
+                    <div class="holdTitle">
+                        <label class="gameUILabel">Hold</label>
+                    </div>
+                    <div class="hold-view">
+                        <canvas id="hold"></canvas>
+                    </div>
+                </div>
+                <div class="scoreContainer">
+                    <div class="scoreTitle">
+                        <label class="gameUILabel">Score</label>
+                    </div>
+                    <div id="score" class="score-view gameUILabel"></div>
+                </div>
+                <div class="lineContainer">
+                    <div class="lineTitle">
+                        <label class="gameUILabel">Line</label>
+                    </div>
+                    <div id="line" class="line-view gameUILabel"></div>
+                </div>
+            </div>
+            <div id="preview_container" class="previewContainer">
+                <div class="previewTitle">
+                    <label class="gameUILabel">Next</label>
+                </div>
+                <div class="preview-view">
+                    <canvas id="preview" width=160 height=440></canvas>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var BLOCKWIDTH = 50
+                var SMALLWIDTH = 20
+                var INTERVAL = 3
+                var TOPCOLLIDED = 102
+                var LEFTSIDECOLLIDED = 103
+                var RIGHTSIDECOLLIDED = 104
+                var BOTTOMCOLLIDED = 105
+                var EXIST = 106
+                var MINIMUMDELAY = 200
+                var ROTATE = 201
+                var MOVEDOWN = 202
+                var MOVELEFT = 203
+                var MOVERIGHT = 204
+                var HARDDROP = 205
+                var XML = "http://www.w3.org/2000/svg"
+                var wallKickOffset = [
+                    {
+                        '0to1': [{ x: -1, y: 0 }, { x: -1, y: -1 }, { x: 0, y: -2 }, { x: -1, y: -2 }],
+                        '1to0': [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: 2 }, { x: 1, y: 2 }],
+                        '1to2': [{ x: 1, y: 0 }, { x: 1, y: -1 }, { x: 0, y: 2 }, { x: 1, y: 2 }],
+                        '2to1': [{ x: -1, y: 0 }, { x: -1, y: 1 }, { x: 0, y: -2 }, { x: -1, y: -2 }],
+                        '2to3': [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: -2 }, { x: 1, y: -2 }],
+                        '3to2': [{ x: -1, y: 0 }, { x: -1, y: -1 }, { x: 0, y: 2 }, { x: -1, y: 2 }],
+                        '3to0': [{ x: -1, y: 0 }, { x: -1, y: -1 }, { x: 0, y: 2 }, { x: -1, y: 2 }],
+                        '0to3': [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: -2 }, { x: 1, y: -2 }]
+                    },
+                    {
+                        '0to1': [{ x: -2, y: 0 }, { x: 1, y: 0 }, { x: -2, y: -1 }, { x: 1, y: 2 }],
+                        '1to0': [{ x: 2, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 1 }, { x: -1, y: -2 }],
+                        '1to2': [{ x: -1, y: 0 }, { x: 2, y: 0 }, { x: -1, y: 2 }, { x: 2, y: -1 }],
+                        '2to1': [{ x: 1, y: 0 }, { x: -2, y: 0 }, { x: 1, y: -2 }, { x: -2, y: 1 }],
+                        '2to3': [{ x: 2, y: 0 }, { x: -1, y: 0 }, { x: 2, y: 1 }, { x: -1, y: -2 }],
+                        '3to2': [{ x: -2, y: 0 }, { x: 1, y: 0 }, { x: -2, y: -1 }, { x: 1, y: 2 }],
+                        '3to0': [{ x: 1, y: 0 }, { x: -2, y: 0 }, { x: 1, y: -2 }, { x: -2, y: 1 }],
+                        '0to3': [{ x: -1, y: 0 }, { x: 2, y: 0 }, { x: -1, y: 2 }, { x: 2, y: -1 }]
+                    }
+                ]
+                var scoreOffset = {
+                    lineClear: [100, 300, 500, 800],
+                    Tspin: [800, 1200, 1600],
+                    B2BTspin: [120, 1800, 2400],
+                    B2BTetris: 1200,
+                    Perfect: [800, 1200, 1800, 2000],
+                    B2BPerfectTetris: 3200
+                }
+                var CLEAR = ['Single', 'Double', 'Triple', 'Tetris']
+                var TSPIN = 'T-Spin'
+                var B2B = 'Back to Back'
+                var PERFECT = 'Perfect'
+                var LEADERBOARD = []
+
+                function copySetting(setting) {
+                    var copy = []
+                    for (let i = 0; i < setting.length; i++) {
+                        copy.push(Object.assign({}, setting[i]))
+                    }
+                    return copy
+                }
+
+                var KEYSETTING = [
+                    {
+                        name: 'Move Right',
+                        key: 'ArrowRigjt',
+                        which: 39
+                    },
+                    {
+                        name: 'Move Left',
+                        key: "ArrowLeft",
+                        which: 37
+                    },
+                    {
+                        name: 'Move Down',
+                        key: 'ArrowDown',
+                        which: 40
+                    },
+                    {
+                        name: 'ClockWise Rotate',
+                        key: 'keyX',
+                        which: 88
+                    },
+                    {
+                        name: 'CounterClockWise Rotate',
+                        key: 'keyZ',
+                        which: 90
+                    },
+                    {
+                        name: 'Hard Drop',
+                        key: 'Space',
+                        which: 32
+                    },
+                    {
+                        name: 'Hold',
+                        key: 'keyC',
+                        which: 67
+                    },
+                    {
+                        name: 'Pause',
+                        key: 'keyP',
+                        which: 80
+                    }
+                ]
+                var MINOOFFSET = [
+                    // mino 0
+                    {
+                        spawnX: 4,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [0, 0, 0, 0],
+                                [1, 1, 1, 1],
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0]
+                            ],
+                            [
+                                [0, 0, 1, 0],
+                                [0, 0, 1, 0],
+                                [0, 0, 1, 0],
+                                [0, 0, 1, 0],
+                            ],
+                            [
+                                [0, 0, 0, 0],
+                                [0, 0, 0, 0],
+                                [1, 1, 1, 1],
+                                [0, 0, 0, 0],
+                            ],
+                            [
+                                [0, 1, 0, 0],
+                                [0, 1, 0, 0],
+                                [0, 1, 0, 0],
+                                [0, 1, 0, 0]
+                            ]
+                        ],
+                        minoNumber: 0,
+                        wallKick: wallKickOffset[1],
+                        blockCount: 4,
+                        color: '#cc99ff'
+                    },
+                    // mino 1
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 3,
+                        shape: [
+                            [
+                                [1, 1],
+                                [1, 1],
+                            ],
+                            [
+                                [1, 1],
+                                [1, 1],
+                            ],
+                            [
+                                [1, 1],
+                                [1, 1],
+                            ],
+                            [
+                                [1, 1],
+                                [1, 1],
+                            ]
+                        ],
+                        minoNumber: 1,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#ffcc99'
+                    },
+                    // mino 2
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [0, 1, 0],
+                                [1, 1, 1],
+                                [0, 0, 0],
+                            ],
+                            [
+                                [0, 1, 0],
+                                [0, 1, 1],
+                                [0, 1, 0]
+                            ],
+                            [
+                                [0, 0, 0],
+                                [1, 1, 1],
+                                [0, 1, 0]
+                            ],
+                            [
+                                [0, 1, 0],
+                                [1, 1, 0],
+                                [0, 1, 0]
+                            ]
+                        ],
+                        minoNumber: 2,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#99ccff'
+                    },
+                    // mino 3
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [0, 1, 1],
+                                [1, 1, 0],
+                                [0, 0, 0],
+                            ],
+                            [
+                                [0, 1, 0],
+                                [0, 1, 1],
+                                [0, 0, 1]
+                            ],
+                            [
+                                [0, 0, 0],
+                                [0, 1, 1],
+                                [1, 1, 0]
+                            ],
+                            [
+                                [1, 0, 0],
+                                [1, 1, 0],
+                                [0, 1, 0]
+                            ]
+                        ],
+                        minoNumber: 3,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#ff9999',
+                    },
+                    // mino 4
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [1, 1, 0],
+                                [0, 1, 1],
+                                [0, 0, 0],
+                            ],
+                            [
+                                [0, 0, 1],
+                                [0, 1, 1],
+                                [0, 1, 0],
+                            ],
+                            [
+                                [0, 0, 0],
+                                [1, 1, 0],
+                                [0, 1, 1],
+                            ],
+                            [
+                                [0, 1, 0],
+                                [1, 1, 0],
+                                [1, 0, 0]
+                            ]
+                        ],
+                        minoNumber: 4,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#ff99cc'
+                    },
+                    // mino 5
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [1, 0, 0],
+                                [1, 1, 1],
+                                [0, 0, 0],
+                            ],
+                            [
+                                [0, 1, 1],
+                                [0, 1, 0],
+                                [0, 1, 0]
+                            ],
+                            [
+                                [0, 0, 0],
+                                [1, 1, 1],
+                                [0, 0, 1]
+                            ],
+                            [
+                                [0, 1, 0],
+                                [0, 1, 0],
+                                [1, 1, 0]
+                            ]
+                        ],
+                        minoNumber: 5,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#a5ec64'
+                    },
+                    // mino 6
+                    {
+                        spawnX: 5,
+                        spawnY: 1,
+                        previewX: 2,
+                        shape: [
+                            [
+                                [0, 0, 1],
+                                [1, 1, 1],
+                                [0, 0, 0],
+                            ],
+                            [
+                                [0, 1, 0],
+                                [0, 1, 0],
+                                [0, 1, 1],
+                            ],
+                            [
+                                [0, 0, 0],
+                                [1, 1, 1],
+                                [1, 0, 0],
+                            ],
+                            [
+                                [1, 1, 0],
+                                [0, 1, 0],
+                                [0, 1, 0]
+                            ]
+                        ],
+                        minoNumber: 6,
+                        wallKick: wallKickOffset[0],
+                        blockCount: 4,
+                        color: '#ccccff'
+                    }
+                ]
+                var MINOOFFSET_DEFAULT = copySetting(MINOOFFSET)
+                var KEYSETTING_DEFAULT = copySetting(KEYSETTING)
+
+                class Main {
+                    constructor() {
+                        this.controller = undefined
+                        this.gameKeyEvent = this.keyEvent.bind(this)
+                        this.storage = new Storage()
+                        this.popup = new PopUp()
+                        this.menu = new Menu(this.popup, this.storage)
+                        this.keyFn = undefined
+                        this.initialize()
+                    }
+                    initialize() {
+                        this.menu.showMenu(this.gameStart.bind(this))
+                        KEYSETTING.forEach((setting, i) => {
+                            this.storage.getKeyData(setting.name).then((e) => {
+                                if (!e.length) {
+                                    this.storage.insertKeyData(setting)
+                                }
+                                else {
+                                    KEYSETTING[i] = e[0]
+                                }
+                            })
+                        })
+                        for (let i = 0; i < 10; i++) {
+                            this.storage.getRankData(i).then((rank) => {
+                                if (rank != undefined) {
+                                    LEADERBOARD.push(rank[0])
+                                }
+                            })
+                        }
+                        MINOOFFSET.forEach((offset, i) => {
+                            this.storage.getColorData(offset.minoNumber).then((e) => {
+                                if (e.length==0) {
+                                    this.storage.insertColorData({ number: offset.minoNumber, color: offset.color })
+                                }
+                                else {
+                                    console.log(e)
+                                    MINOOFFSET[i].color = e[0].color
+                                }
+                            })
+                        })
+                    }
+                    bindGameKeyEvent() {
+                        document.addEventListener('keydown', this.gameKeyEvent)
+                    }
+                    removeGameKeyEvent() {
+                        document.removeEventListener('keydown', this.gameKeyEvent)
+                    }
+                    keyEvent(e) {
+                        var index = KEYSETTING.findIndex(k => k.which == e.which)
+                        try {
+                            this.keyFn[index]()
+                        } catch { }
+                    }
+                    gamePause() {
+                        this.removeGameKeyEvent()
+                        this.controller.cancelAutoDown()
+                        var popup = this.popup.makePausePopUp()
+                        var keyEvent = (e) => {
+                            if (e.which == 32) {
+                                document.body.removeChild(popup)
+                                this.gameResume()
+                                document.removeEventListener('keydown', keyEvent)
+                            }
+                            else if (e, which == 27) {
+                                this.menu, showMenu(this.gameStart.bind(this))
+                                this.controller = undefined
+                                document.body.removeChild(popup)
+                                document.removeEventListener('keydown', keyEvent)
+                            }
+                        }
+                        document.addEventListener('keydown', keyEvent)
+                    }
+                    gameStart() {
+                        var stage = document.getElementById('stage')
+                        for (let i = 0; i < stage.children.length; i++) {
+                            stage.removeChild(stage.children[i])
+                        }
+                        this.controller = new MinoController()
+                        this.controller.spawnMino()
+                        this.keyFn = [
+                            this.controller.moveRight.bind(this.controller),
+                            this.controller.moveLeft.bind(this.controller),
+                            this.controller.moveDown.bind(this.controller),
+                            this.controller.clockWiseRotate.bind(this.controller),
+                            this.controller.counterClockWiseRotate.bind(this.controller),
+                            this.controller.hardDrop.bind(this.controller),
+                            this.controller.holdMino.bind(this.controller),
+                            this.gamePause.bind(this)
+                        ]
+                        this.bindGameKeyEvent()
+                    }
+                    gameResume() {
+                        this.bindGameKeyEvent()
+                        this.controller.startAutoDown()
+                    }
+                    gameOver(score, lines) {
+                        this.removeGameKeyEvent()
+                        this.controller.cancelAutoDown()
+
+                        var popup = this.popup.makeGameOverPopUp()
+
+                        var keyEvent = (e) => {
+                            if (e.which == 27) {
+                                document.body.removeChild(popup)
+                                document.removeEventListener('keydown', keyEvent)
+                                this.menu.showMenu(this.gameStart.bind(this))
+                            }
+                        }
+                        var rank = undefined
+                        for (let i = 9; i >= 0; i--) {
+                            if (score == 0) {
+                                break
+                            }
+                            var temp = LEADERBOARD[i] ? Math.max(LEADERBOARD[i].score, score) : score
+                            if (temp == score) {
+                                if (i == 0) {
+                                    rank = 0
+                                    break
+                                }
+                            }
+                            else {
+                                if (i == 9) {
+                                    break
+                                }
+                                rank = i + 1
+                            }
+                        }
+                        if (rank != undefined) {
+                            setTimeout(() => {
+                                this.popup.makeNewRecordPopup((name) => {
+                                    var length = LEADERBOARD.length
+                                    for (let i = length - 1; i >= rank; i--) {
+                                        LEADERBOARD[i + 1] = Object.assign({}, LEADERBOARD[i])
+                                        LEADERBOARD[i + 1].rank = i + 1
+                                    }
+                                    LEADERBOARD[rank] = { name: name, score: score, lines: lines, rank: rank }
+                                    this.storage.deleteAllRankData().then(() => {
+                                        LEADERBOARD.forEach((rank) => {
+                                            this.storage.insertRankData(rank)
+                                        })
+                                    })
+                                }, keyEvent)
+                            }, 1000)
+                        }
+                        else {
+                            document.addEventListener('keydown', keyEvent)
+                        }
+                    }
+                }
+
+                class MinoController {
+                    constructor() {
+                        this.mino = undefined
+                        this.downId = undefined
+                        this.preview = new MinoPreview()
+                        this.holder = new MinoHolder()
+                        this.board = new Board()
+                        this.levelSystem = this.board.scoreIndicator.levelSystem
+                        this.scoreIndicator = this.board.scoreIndicator
+                        this.popup = new PopUp()
+                    }
+                    spawnMino(number) {
+                        var minoOffset = MINOOFFSET[number] ? MINOOFFSET[number] : MINOOFFSET[this.preview.getMinoNumber()]
+                        this.mino = {
+                            x: minoOffset.spawnX,
+                            y: minoOffset.spawnY,
+                            state: 0,
+                            shape: minoOffset.shape,
+                            matrix: undefined,
+                            shadowDiv: undefined,
+                            blockDiv: undefined,
+                            wallKick: minoOffset.wallKick,
+                            minoNumber: minoOffset.minoNumber,
+                            isHolded: false,
+                            shadowMatrix: undefined,
+                            lastMove: undefined
+                        }
+                        this.mino.matrix = this.getMatrix(this.mino.x, this.mino.y, this.mino.state)
+                        if (this.board.checkCollision(this.mino.matrix)) {
+                            var score = this.scoreIndicator.score
+                            var lines = this.scoreIndicator.totalLine
+                            main.gameOver(score, lines)
+                            return
+                        }
+                        this.mino.blockDiv = this.board.createMino(minoOffset.blockCount, minoOffset.color)
+                        this.mino.shadowDiv = this.board.createShadow(minoOffset.blockCount)
+                        this.moveShadow()
+                        this.moveMino(this.mino.matrix)
+                        if (this.delay > MINIMUMDELAY) {
+                            this.delay -= 2
+                        }
+                        this.startAutoDown()
+                    }
+                    getMatrix(x, y, state) {
+                        var matrix = []
+                        this.mino.shape[state].forEach((e, i) => {
+                            e.forEach((f, k) => {
+                                if (f == 1) {
+                                    matrix.push({ x: x + k, y: y + i })
+                                }
+                            })
+                        })
+                        return matrix
+                    }
+                    moveShadow() {
+                        var x = this.mino.x
+                        var y = this.mino.y
+
+                        while (true) {
+                            var matrix = this.getMatrix(x, y + 1, this.mino.state)
+                            if (this.board.checkCollision(matrix)) {
+                                break
+                            }
+                            y += 1
+                        }
+                        this.mino.shadowMatrix = this.getMatrix(x, y, this.mino.state)
+                        this.mino.shadowMatrix.forEach((e, i) => {
+                            var shadow = this.mino.shadowDiv[i]
+                            var x = e.x
+                            var y = e.y
+                            shadow.style.left = (BLOCKWIDTH + INTERVAL) * (x - 1) + 'px'
+                            shadow.style.top = (BLOCKWIDTH + INTERVAL) * (y - 1) + 'px'
+                        })
+                    }
+                    moveMino(matrix) {
+                        matrix.forEach((e, i) => {
+                            var block = this.mino.blockDiv[i]
+                            var x = e.x
+                            var y = e.y
+                            block.style.left = (BLOCKWIDTH + INTERVAL) * (x - 1) + 'px'
+                            block.style.top = (BLOCKWIDTH + INTERVAL) * (y - 1) + 'px'
+                        })
+                    }
+                    moveDown() {
+                        var y = this.mino.y + 1
+                        var matrix = this.getMatrix(this.mino.x, y, this.mino.state)
+
+                        if (!this.board.checkCollision(matrix)) {
+                            this.mino.y += 1
+                            this.mino.matrix = this.getMatrix(this.mino.x, this.mino.y, this.mino.state)
+                            this.moveMino(this.mino.matrix)
+                            this.mino.lastMove = MOVEDOWN
+                            return true
+                        }
+                        else {
+                            this.cancelAutoDown()
+                            this.board.stackMino(this.mino, this.spawnMino.bind(this))
+                            return false
+                        }
+                    }
+                    hardDrop() {
+                        this.cancelAutoDown()
+                        this.moveMino(this.mino.shadowMatrix)
+                        this.mino.matrix = this.mino.shadowMatrix
+                        this.mino.lastMove = HARDDROP
+                        this.board.stackMino(this.mino, this.spawnMino.bind(this))
+                    }
+                    moveLeft() {
+                        var x = this.mino.x - 1
+                        var matrix = this.getMatrix(x, this.mino.y, this.mino.state)
+                        if (!this.board.checkCollision(matrix)) {
+                            this.mino.x -= 1
+                            this.mino.matrix = matrix
+                            this.moveMino(this.mino.matrix)
+                            this.moveShadow()
+                            this.mino.lastMove = MOVELEFT
+                        }
+                    }
+                    moveRight() {
+                        var x = this.mino.x + 1
+                        var matrix = this.getMatrix(x, this.mino.y, this.mino.state)
+                        if (!this.board.checkCollision(matrix)) {
+                            this.mino.x += 1
+                            this.mino.matrix = matrix
+                            this.moveMino(this.mino.matrix)
+                            this.moveShadow()
+                            this.mino.lastMove = MOVERIGHT
+                        }
+                    }
+                    clockWiseRotate() {
+                        var state = this.mino.state < this.mino.shape.length - 1 ? this.mino.state + 1 : 0
+                        var wallKick = this.mino.wallKick[this.mino.state + 'to' + state]
+                        for (let i = -1; i < wallKick.length; i++) {
+                            try {
+                                var x = wallKick[i].x + this.mino.x
+                                var y = wallKick[i].y + this.mino.y
+                            } catch {
+                                var x = this.mino.x
+                                var y = this.mino.y
+                            }
+                            var matrix = this.getMatrix(x, y, state)
+                            if (!this.board.checkCollision(matrix)) {
+                                this.mino.x = x
+                                this.mino.y = y
+                                this.mino.state = state
+                                this.mino.matrix = matrix
+                                this.moveMino(this.mino.matrix)
+                                this.moveShadow()
+                                this.mino.lastMove = ROTATE
+                                return
+                            }
+                        }
+                    }
+                    counterClockWiseRotate() {
+                        var state = this.mino.state > 0 ? this.mino.state - 1 : this.mino.shape.length - 1
+                        var wallKick = this.mino.wallKick[this.mino.state + 'to' + state]
+                        for (let i = -1; i < wallKick.length; i++) {
+                            try {
+                                var x = wallKick[i].x + this.mino.x
+                                var y = wallKick[i].y + this.mino.y
+                            } catch {
+                                var x = this.mino.x
+                                var y = this.mino.y
+                            }
+                        }
+                        var matrix = this.getMatrix(x, y, state)
+                        if (!this.board.checkCollision(matrix)) {
+                            this.mino.x = x
+                            this.mino.y = y
+                            this.mino.state = state
+                            this.mino.matrix = matrix
+                            this.moveMino(this.mino.matrix)
+                            this.moveShadow()
+                            this.mino.lastMove = ROTATE
+                            return
+                        }
+                    }
+                    holdMino() {
+                        if (this.mino.isHolded) {
+                            return
+                        }
+                        var holdedMinoNumber = this.holder.changeHold(this.mino.minoNumber)
+                        this.board.removeMino(this.mino.blockDiv)
+                        this.board.removeShadow(this.mino.shadowDiv)
+                        this.cancelAutoDown()
+                        if (holdedMinoNumber != undefined) {
+                            this.spawnMino(holdedMinoNumber)
+                        }
+                        else {
+                            this.spawnMino()
+                        }
+                        this.mino.isHolded = true
+                    }
+                    startAutoDown() {
+                        this.downId = setInterval(this.moveDown.bind(this), this.levelSystem.getDelay())
+                    }
+                    cancelAutoDown() {
+                        clearInterval(this.downId)
+                    }
+                }
+
+                class Board {
+                    constructor() {
+                        this.stage = document.getElementById('stage')
+                        this.scoreIndicator = new ScoreIndicator()
+                        this.shadowPainter = new ShadowPainter()
+                        this.matrix = undefined
+                        this.initialize()
+                    }
+                    initialize() {
+                        this.matrix = new Array()
+                        var top = new Array()
+                        for (let i = 0; i < 10; i++) {
+                            top.push({ value: 1 })
+                        }
+                        this.matrix.push(top)
+                        for (let i = 0; i < 20; i++) {
+                            var temp = new Array()
+                            temp.push({ value: 5 })
+                            for (let k = 0; k < 10; k++) {
+                                temp.push(undefined)
+                            }
+                            temp.push({ value: 4 })
+                            this.matrix.push(temp)
+                        }
+                        var base = new Array()
+                        for (let i = 0; i < 12; i++) {
+                            base.push({ value: 3 })
+                        }
+                        this.matrix.push(base)
+                    }
+                    createMino(blockCount, color) {
+                        var blockDiv = []
+                        for (let i = 0; i < blockCount; i++) {
+                            var div = document.createElement('div')
+                            div.classList.add('mino')
+                            div.style.background = color
+                            this.stage.appendChild(div)
+                            blockDiv.push(div)
+                        }
+                        return blockDiv
+                    }
+                    removeMino(blockDiv) {
+                        blockDiv.forEach((div) => {
+                            this.stage.removeChild(div)
+                        })
+                    }
+                    createShadow(blockCount) {
+                        var shadowDiv = []
+                        for (let i = 0; i < blockCount; i++) {
+                            var div = document.createElement('div')
+                            div.classList.add('mino', 'shadow')
+                            div.appendChild(this.shadowPainter.drawShadow())
+                            this.stage.appendChild(div)
+                            shadowDiv.push(div)
+                        }
+                        return shadowDiv
+                    }
+                    removeShadow(shadowDiv) {
+                        shadowDiv.forEach((div) => {
+                            this.stage.removeChild(div)
+                        })
+                    }
+                    checkCollision(matrix) {
+                        for (let i = 0; i < matrix.length; i++) {
+                            var x = matrix[i].x
+                            var y = matrix[i].y
+                            try {
+                                var cell = this.matrix[y][x]
+                                if (cell != undefined) {
+                                    switch (cell.value) {
+                                        case 5:
+                                            return LEFTSIDECOLLIDED
+                                        case 4:
+                                            return RIGHTSIDECOLLIDED
+                                        case 3:
+                                            return BOTTOMCOLLIDED
+                                        case 2:
+                                            return EXIST
+                                        case 1:
+                                            return TOPCOLLIDED
+                                    }
+                                }
+                            } catch { }
+                        }
+                        return false
+                    }
+                    checkTspin(mino) {
+                        if (!(mino.lastMove == ROTATE && mino.minoNumber == 2)) {
+                            return false
+                        }
+                        var x = mino.x
+                        var y = mino.y
+                        var wallCount = 0
+                        this.matrix[y][x] ? wallCount += 1 : wallCount += 0
+                        this.matrix[y][x + 2] ? wallCount += 1 : wallCount += 0
+                        this.matrix[y + 2][x] ? wallCount += 1 : wallCount += 0
+                        this.matrix[y + 2][x + 2] ? wallCount += 1 : wallCout += 0
+
+                        if (wallCount > 2) { return true }
+                        else { return false }
+                    }
+                    checkPerfectClear() {
+                        for (let i = 1; i < this.matrix[20].length - 1; i++) {
+                            if (this.matrix[20][i] != undefined) {
+                                return false
+                            }
+                        }
+                        return true
+                    }
+                    stackMino(mino, spawnMino) {
+                        var blockDiv = mino.blockDiv
+                        var matrix = mino.matrix
+                        var minoNumber = mino.minoNumber
+                        var shadowDiv = mino.shadowDiv
+
+                        var changedCol = []
+                        matrix.forEach((m, i) => {
+                            var block = blockDiv[i]
+                            var x = m.x
+                            var y = m.y
+                            changedCol.push(y)
+                            block.value = 2
+                            this.matrix[y][x] = block
+                        })
+                        this.removeShadow(shadowDiv)
+                        main.removeGameKeyEvent()
+                        if (this.checkLine(new Set(changedCol), spawnMino, mino)) {
+                            if (this.scoreIndicator.combo) {
+                                this.scoreIndicator.setCombo(0)
+                            }
+                            var maxY = undefined
+                            for (let i = 1; i < matrix.length; i++) {
+                                maxY = Math.max(matrix[i].y, matrix[i - 1].y)
+                            }
+                            matrix.forEach((m, i) => {
+                                var block = blockDiv[i]
+                                var background_temp = block.style.background
+                                var removeLightEndFn = () => {
+                                    spawnMino()
+                                    main.bindGameKeyEvent()
+                                    block.removeEventListener('transitionend', removeLightEndFn)
+                                }
+                                var lightUpCellEndFn = () => {
+                                    block.style.transform = 'scale(1,1)'
+                                    block.style.top = (BLOCKWIDTH + INTERVAL) * (m.y - 1) + 'px'
+                                    block.style.borderRadius = '6px'
+
+                                    block.removeEventListener('transitionend', lightUpCellEndFn)
+                                    if (i == matrix.length - 1) {
+                                        block.addEventListener('transitionend', removeLightEndFn)
+                                    }
+                                }
+                                block.addEventListener('transitionend', lightUpCellEndFn)
+
+                                block.style.transition = 'all .1s ease'
+                                block.style.top = ((BLOCKWIDTH + INTERVAL) * (m.y - 1) + (maxY - m.y) * 10) + 'px'
+                                block.style.borderRadius = '12px'
+                                block.style.transform = 'scale(1.3, 0.9)'
+                            })
+                        }
+                    }
+
+                    checkLine(changedCol, spawnMino, mino) {
+                        var filledCol = []
+                        changedCol.forEach((y) => {
+                            for (let i = 1; i < 11; i++) {
+                                var cell = this.matrix[y][i]
+                                if (cell == undefined) {
+                                    return
+                                }
+                            }
+                            filledCol.push(y)
+                        })
+                        var onDownLinesEnd = function () {
+                            main.bindGameKeyEvent()
+                            spawnMino()
+                            this.removeEventListener('transitionend', onDownLinesEnd)
+                        }
+                        var onHideCellEnd = () => {
+                            filledCol.forEach((y) => {
+                                for (let x = 1; x < 11; x++) {
+                                    try {
+                                        this.stage.removeChild(this.matrix[y][x])
+                                        this.matrix[y][x] = undefined
+                                    } catch { }
+                                }
+                            })
+                            var temp = true
+                            for (let y = 1; y < this.matrix.length - 1; y++) {
+                                var downCount = 0
+                                filledCol.forEach((i) => {
+                                    i > y ? downCount += 1 : downCount += 0
+                                })
+                                if (downCount) {
+                                    for (let x = 1; x < this.matrix[y].length - 1; x++) {
+                                        try {
+                                            var block = this.matrix[y][x]
+                                            block.style.transition = 'top 0.3s cubic-bezier(0.63, 0.07, 0, 1.39) 0s'
+                                            block.style.top = (BLOCKWIDTH + INTERVAL) * (y + downCount - 1) + 'px'
+                                            if (temp) {
+                                                block.addEventListener('transitionend', onDownLinesEnd)
+                                                temp = false
+                                            }
+                                        } catch { }
+                                    }
+                                }
+                            }
+                            if (temp) {
+                                main.bindGameKeyEvent()
+                                spawnMino()
+                            }
+                            filledCol.forEach((y) => {
+                                for (let i = y; i > 2; i--) {
+                                    this.matrix[i] = this.matrix[i - 1].slice()
+                                }
+                            })
+                        }
+                        if (filledCol.length) {
+                            var isTspin = this.checkTspin(mino)
+                            var isPerfectClear = this.checkPerfectClear()
+                            var isHardDrop = false
+                            if (mino.lastMove == HARDDROP) {
+                                isHardDrop = true
+                            }
+                            this.scoreIndicator.calScore(isTspin, isPerfectClear, filledCol.length, isHardDrop)
+                            var delay = 0
+                            for (let y = 0; y < filledCol.length; y++) {
+                                for (let x = 1; x < 11; x++) {
+                                    var block = this.matrix[filledCol[y]][x]
+                                    var transitionString = 'transform .35s ease ' + delay + 's'
+                                    block.style.transition = 'transform .35s ease ' + delay + 's'
+                                    block.style.transform = 'scale(0)'
+                                    if (x == 10 && y == filledCol.length - 1) {
+                                        block.addEventListener('transitionend', onHideCellEnd)
+                                    }
+                                    delay += 0.01
+                                }
+                            }
+                            return false
+                        }
+                        return true
+                    }
+                }
+                class ScoreIndicator {
+                    constructor() {
+                        this.scoreView = document.getElementById('score')
+                        this.lineView = document.getElementById('line')
+                        this.stage = document.getElementById('stage')
+                        this.messageContainer = undefined
+                        this.levelSystem = new LevelSystem()
+                        this.score = 0
+                        this.totalLine = 0
+                        this.combo = 0
+                        this.isB2B = false
+                        this.setScore(0)
+                        this.setLine(0)
+                    }
+                    calScore(isTspin, isPerfectClear, clearCount, isHardDrop) {
+                        try {
+                            this.stage.removeChild(this.messageContainer)
+                        } catch { }
+                        this.messageContainer = document.createElement('div')
+                        this.messageContainer.classList.add('clearMessageContainer')
+                        var totalScore = 0
+                        var comboMessageDiv = undefined
+                        var b2bMessageDiv = undefined
+                        var clearMessageDiv = document.createElement('div')
+                        var levelUpMessageDiv = undefined
+                        clearMessageDiv.classList.add('clearMessage')
+                        var comboMessage = ''
+                        var b2bMessage = ''
+                        var clearMessage = ''
+                        // Tspin
+                        if (this.isB2B && (isTspin || (clearCount == 4))) {
+                            b2bMessageDiv = document.createElement('div')
+                            b2bMessageDiv.innerText = B2B
+                            b2bMessageDiv.classList.add('clearMessage')
+                            if (isTspin) {
+                                totalScore += scoreOffset.B2BTspin[clearCount - 1]
+                                clearMessage += TSPIN
+                            }
+                            else if (clearCount == 4) {
+                                totalScore += scoreOffset.B2BTetris
+                            }
+                        }
+                        // Perfect
+                        if (isPerfectClear) {
+                            clearMessage += '' + PERFECT
+                            totalScore += scoreOffset.Perfect[clearCount - 1]
+                        }
+                        // clearCount
+                        if (this.combo) {
+                            comboMessageDiv = document.createElement('div')
+                            comboMessage += this.combo + 'Combo'
+                            comboMessageDiv.innerText = comboMessage
+                            comboMessageDiv.classList.add('clearMessage')
+                            totalScore += 50 * this.combo * this.levelSystem.getLevel()
+                            this.combo += 1
+                        }
+                        else {
+                            this.combo = 1
+                        }
+                        // Hard & Soft
+                        if (isHardDrop) {
+                            totalScore += clearCount * 20
+                        }
+                        else {
+                            totalScore += clearCount * 10
+                        }
+                        // check Levelup
+                        if (this.levelSystem.checkLevelUp(clearCount)) {
+                            levelUpMessageDiv = document.createElement('div')
+                            levelUpMessageDiv.classList.add('clearMessage')
+                            levelUpMessageDiv.innerText = 'Level Up'
+                            this.levelSystem.levelUp(clearCount)
+                        }
+                        clearMessageDiv.innerText = clearMessage
+                        b2bMessageDiv ? this.messageContainer.appendChild(b2bMessageDiv) : false
+                        clearMessageDiv ? this.messageContainer.appendChild(clearMessageDiv) : false
+                        comboMessageDiv ? this.messageContainer.appendChild(comboMessageDiv) : false
+                        this.messageContainer.addEventListener('animationend', () => {
+                            try {
+                                this.stage.removeChild(this.messageContainer)
+                            } catch { }
+                            if (levelUpMessageDiv != undefined) {
+                                this.messageContainer = document.createElement('div')
+                                this.messageContainer.classList.add('clearMessageContainer')
+                                this.stage.appendChild(this.messageContainer)
+                                this.messageContainer.appendChild(levelUpMessageDiv)
+                                this.messageContainer.addEventListener('animationend', () => {
+                                    try {
+                                        this.stage.removeChild(this.messageContainer)
+                                    } catch { }
+                                })
+                            }
+                        })
+                        this.stage.appendChild(this.messageContainer)
+                        this.setLine(clearCount + this.totalLine)
+                        this.setScore(this.score + totalScore)
+                    }
+                    setCombo(combo) {
+                        this.combo = combo
+                    }
+                    setLine(clearCount) {
+                        this.totalLine = clearCount
+                        this.lineView.innerText = this.totalLine
+                    }
+                    setScore(score) {
+                        this.score = score
+                        this.scoreView.innerText = this.score
+                    }
+                }
+                class LevelSystem {
+                    constructor() {
+                        this.level = 1
+                        this.nextCount = 5
+                        this.clearCount = 0
+                        this.delay = 1000
+                        this.stage = document.getElementById('stage')
+                    }
+                    levelUp(count) {
+                        this.clearCount += count
+                        var temp = this.clearCount - this.nextCount
+                        this.clearCount = temp
+                        this.delay -= 50
+                        if (this.delay < MINIMUMDELAY) {
+                            this.delay = MINIMUMDELAY
+                        }
+                        this.nextCount += 5
+                        this.level += 1
+                    }
+                    checkLevelUp(count) {
+                        var temp = this.clearCount + count
+                        if (temp < this.nextCount) {
+                            this.clearCount = temp
+                            return false
+                        }
+                        else {
+                            return true
+                        }
+                    }
+                    getDelay() {
+                        return this.delay
+                    }
+                    getLevel() {
+                        return this.level
+                    }
+                }
+                class ShadowPainter {
+                    constructor() {
+                        this.shadowOffset = document.createElement('canvas')
+                        this.shadowOffset.width = BLOCKWIDTH
+                        this.shadowOffset.height = BLOCKWIDTH
+                        this.initialize()
+                    }
+                    initialize() {
+                        var ctx = this.shadowOffset.getContext('2d')
+                        ctx.fillStyle = '#C0C0C0'
+                        ctx.fillRect(0, 0, BLOCKWIDTH, BLOCKWIDTH)
+                        ctx.clearRect(5, 5, BLOCKWIDTH - 10, BLOCKWIDTH - 10)
+                    }
+                    drawShadow() {
+                        var canvas = document.createElement('canvas')
+                        canvas.style.border = 0
+                        canvas.width = BLOCKWIDTH
+                        canvas.height = BLOCKWIDTH
+                        var ctx = canvas.getContext('2d')
+                        ctx.drawImage(this.shadowOffset, 0, 0, BLOCKWIDTH, BLOCKWIDTH)
+                        return canvas
+                    }
+                }
+                class MinoPreview {
+                    constructor() {
+                        this.pool = new Array()
+                        this.stack = new Array()
+                        this.painter = new PreviewPainter()
+                        this.fillStack()
+                    }
+                    fillPool() {
+                        for (let i = 0; i < MINOOFFSET.length; i++) {
+                            this.pool.push(i)
+                        }
+                    }
+                    getNumberFromPool() {
+                        if (!this.pool.length) {
+                            this.fillPool()
+                        }
+                        var index = parseInt(Math.random() * this.pool.length)
+                        var n = this.pool[index]
+                        this.pool.splice(index, 1)
+                        return n
+                    }
+                    fillStack() {
+                        if (this.stack.length < 4) {
+                            this.stack.push(this.getNumberFromPool())
+                            this.fillStack()
+                        }
+                        else {
+                            this.painter.drawPreview(this.stack)
+                        }
+                    }
+                    getMinoNumber() {
+                        var n = this.stack.shift()
+                        this.fillStack()
+                        return n
+                        //return 0
+                    }
+                }
+                class PreviewPainter {
+                    constructor() {
+                        this.preview = document.getElementById('preview')
+                        this.initialize
+                    }
+                    initialize() {
+                        this.preview.width = document.querySelector('.preview-view').offsetWidth
+                        this.preview.height = document.querySelector('.preview-view').offsetHeight
+                    }
+                    drawPreview(stack) {
+                        var ctx = this.preview.getContext('2d')
+                        ctx.clearRect(0, 0, this.preview.offsetWidth, this.preview.offsetHeight)
+                        stack.forEach((number, floor) => {
+                            var mino = MINOOFFSET[number]
+                            ctx.fillStyle = mino.color
+                            mino.shape[0].forEach((e, i) => {
+                                e.forEach((f, k) => {
+                                    if (f) {
+                                        ctx.fillRect((mino.previewX + k) * (SMALLWIDTH + 1), (mino.spawnY + i) * (SMALLWIDTH + 1) + floor * 100, SMALLWIDTH, SMALLWIDTH)
+                                    }
+                                })
+                            })
+                        })
+                    }
+                }
+                class MinoHolder {
+                    constructor() {
+                        this.minoNumber = undefined
+                        this.painter = new HoldPainter()
+                    }
+                    changeHold(number) {
+                        var returnValue = this.minoNumber
+                        this.minoNumber = number
+                        this.painter.drawHold(number)
+                        return returnValue
+                    }
+                }
+                class HoldPainter {
+                    constructor() {
+                        this.hold = document.getElementById('hold')
+                        this.initialize()
+                    }
+                    initialize() {
+                        this.hold.width = document.querySelector('.hold-view').offsetWidth
+                        this.hold.height = document.querySelector('.hold-view').offsetHeight
+                    }
+                    drawHold(number) {
+                        var ctx = this.hold.getContext('2d')
+                        ctx.clearRect(0, 0, this.hold.offsetWidth, this.hold.offsetHeight)
+                        var mino = MINOOFFSET[number]
+                        ctx.fillStyle = mino.color
+                        mino.shape[0].forEach((e, i) => {
+                            e.forEach((f, k) => {
+                                if (f) {
+                                    ctx.fillRect((mino.previewX + k) * (SMALLWIDTH + 1), (mino.spawnY + i) * (SMALLWIDTH + 1) + 30, SMALLWIDTH, SMALLWIDTH)
+                                }
+                            })
+                        })
+                    }
+                }
+                class Menu {
+                    constructor(popup, storage) {
+                        this.stage = document.getElementById('stage')
+                        this.game_ui = document.getElementById('game-ui')
+                        this.popup = popup
+                        this.storage = storage
+                    }
+                    showMenu(gameStartFn) {
+                        try {
+                            this.game_ui.removeChild(this.stage)
+                        } catch { }
+                        this.stage = document.createElement('div')
+                        this.stage.id = 'stage'
+                        this.game_ui.insertBefore(this.stage, this.game_ui.children[1])
+
+                        var preview = document.getElementById('preview')
+                        preview.getContext('2d').clearRect(0, 0, preview.offsetWidth, preview.offsetHeight)
+                        var score = document.getElementById('score')
+                        score.innerText = ''
+                        var line = document.getElementById('line')
+                        line.innerText = ''
+                        var buttonContainer = document.createElement('div')
+                        buttonContainer.classList.add('menuButtonContainer')
+                        var hold = document.createElement('canvas')
+                        hold.getContext('2d').clearRect(0, 0, hold.offsetWidth, hold.offsetHeight)
+                        var startGame = document.createElement('div')
+                        var config = document.createElement('div')
+                        var leaderBoard = document.createElement('div')
+                        var credit = document.createElement('div')
+
+                        startGame.classList.add('menuButton', 'startGameButton')
+                        config.classList.add('menuButton', 'configButton')
+                        leaderBoard.classList.add('menuButton', 'leaderBoardButton')
+                        credit.classList.add('menuButton', 'creditButton')
+
+                        startGame.innerText = 'GAME START'
+                        config.innerText = 'CONFIGURATION'
+                        leaderBoard.innerText = 'LEADERBOARD'
+                        credit.innerText = 'CREDIT'
+                        startGame.addEventListener('mouseup', () => {
+                            gameStartFn()
+                        })
+                        config.addEventListener('mouseup', () => {
+                            this.popup.makeConfigPopUp(this.storage)
+                        })
+                        leaderBoard.addEventListener('mouseup', () => {
+                            this.popup.makeLeaderBoardPopUp()
+                        })
+                        credit.addEventListener('mouseup', () => {
+                            this.popup.makeCreditPopUp()
+                        })
+                        buttonContainer.append(startGame, leaderBoard, config, credit)
+                        this.stage.append(buttonContainer)
+                    }
+                }
+                class PopUp {
+                    constructor() { }
+                    getPopUpBase(title) {
+                        var background = document.createElement('div')
+                        background.classList.add('popup-background')
+                        document.body.appendChild(background)
+                        var popup_container = document.createElement('div')
+                        popup_container.classList.add('popup-container')
+                        background.appendChild(popup_container)
+                        var popup_title = document.createElement('h2')
+                        var popup_top = document.createElement('div')
+                        popup_title.innerText = title
+                        popup_title.classList.add('popup-title')
+                        popup_top.classList.add('popup-top')
+                        popup_top.appendChild(popup_title)
+                        popup_container.appendChild(popup_top)
+                        return background
+                    }
+                    makeConfigPopUp(storage) {
+                        var background = this.getPopUpBase('CONFIGURATION')
+                        var popup_container = background.children[0]
+                        var popup_content = undefined
+                        var keySetting_temp = copySetting(KEYSETTING)
+                        var minoSetting_temp = copySetting(MINOOFFSET)
+
+                        //popup head
+                        var change_button_container = document.createElement('div')
+                        change_button_container.style.display = 'flex'
+                        change_button_container.style.justifyContent = 'center'
+                        var button1 = document.createElement('button')
+                        button1.classList.add('config-chagne-button')
+                        var svg1 = document.createElementNS(XML, 'svg')
+                        var path1 = document.createElementNS(XML, 'path')
+                        path1.setAttributeNS(null, 'd', "M 2870 8230 c -370 -79 -762 -394 -1157 -930 c -776 -1054 -1451 -2859 -1653 -4415 c -44 -340 -54 -500 -54 -860 c 0 -366 10 -507 54 -755 c 135 -749 488 -1174 1043 -1256 c 264 -39 525 12 787 153 c 249 134 457 300 750 599 c 257 262 426 464 860 1029 c 139 182 295 381 347 442 l 94 113 l 2459 0 l 2459 0 l 94 -113 c 52 -61 220 -276 375 -477 c 456 -594 628 -795 918 -1080 c 246 -240 416 -374 629 -494 c 278 -156 547 -213 822 -172 c 129 19 235 52 344 107 c 679 340 915 1448 654 3064 c -210 1300 -740 2753 -1371 3764 c -204 326 -395 571 -619 797 c -265 266 -479 405 -731 476 c -79 23 -84 23 -934 26 c -830 3 -856 2 -920 -17 c -85 -26 -209 -105 -410 -261 c -181 -140 -280 -204 -357 -232 c -49 -17 -104 -18 -953 -18 c -849 0 -904 1 -953 18 c -77 28 -176 92 -357 232 c -200 155 -324 234 -408 260 c -62 19 -93 20 -896 19 c -764 0 -838 -2 -916 -19 Z m 6713 -1244 c 105 -25 197 -106 233 -208 c 20 -55 20 -161 0 -216 c -83 -232 -381 -295 -546 -116 c -65 70 -85 123 -85 224 c 0 65 5 96 21 131 c 42 90 125 159 223 185 c 60 16 84 16 154 0 Z m -6223 -491 l 0 -355 l 355 0 l 355 0 l -2 -236 l -3 -235 l -352 1 l -353 0 l -2 -357 l -3 -358 l -237 -3 l -238 -2 l 0 360 l 0 360 l -355 0 l -355 0 l 0 235 l 0 235 l 355 0 l 355 0 l 0 355 l 0 355 l 240 0 l 240 0 l 0 -355 Z m 5423 -309 c 108 -25 207 -118 237 -222 c 18 -62 9 -180 -18 -236 c -31 -63 -96 -126 -162 -157 c -80 -37 -192 -36 -271 2 c -66 32 -132 99 -162 165 c -31 66 -31 198 -1 263 c 43 92 132 165 231 188 c 55 13 81 12 146 -3 Z m 1684 -26 c 113 -56 178 -161 178 -290 c 0 -65 -5 -85 -33 -142 c -58 -119 -161 -183 -292 -183 c -132 1 -234 65 -292 183 c -28 57 -33 76 -33 142 c 1 60 6 87 27 131 c 80 174 273 243 445 159 Z m -805 -808 c 64 -31 126 -96 157 -162 c 34 -73 36 -191 4 -262 c -30 -66 -95 -133 -162 -165 c -48 -24 -68 -28 -141 -28 c -73 0 -93 4 -142 28 c -167 82 -234 293 -142 453 c 31 55 114 129 167 148 c 64 24 199 17 259 -12 Z m -4507 -1287 c 241 -51 446 -255 501 -501 c 34 -154 4 -333 -78 -472 c -52 -89 -160 -191 -253 -239 c -107 -55 -189 -76 -305 -76 c -256 -1 -480 139 -590 368 c -50 105 -64 169 -63 285 c 1 257 138 473 370 586 c 127 62 275 79 418 49 Z m 2768 0 c 137 -29 284 -121 371 -231 c 96 -122 139 -252 139 -414 c -1 -185 -66 -333 -204 -465 c -127 -121 -273 -179 -449 -178 c -177 1 -333 65 -455 188 c -123 124 -183 257 -192 425 c -7 123 13 220 69 333 c 82 164 260 303 438 341 c 85 19 199 19 283 1 Z")
+                        svg1.setAttributeNS(null, 'viewBox', '0 0 2048 2048')
+                        svg1.style.width = '35px'
+                        svg1.style.hegiht = '35px'
+                        svg1.appendChild(path1)
+                        button1.appendChild(svg1)
+                        change_button_container.appendChild(button1)
+                        var button2 = document.createElement('button')
+                        button2.classList.add('config-change-button')
+                        var buttonImage = document.createElement('div')
+                        buttonImage.style.width = '25px'
+                        buttonImage.style.height = '25px'
+                        buttonImage.style.border = '3px solid black'
+                        buttonImage.style.borderRadius = '5px'
+                        button2.appendChild(buttonImage)
+                        change_button_container.appendChild(button2)
+                        popup_container.appendChild(change_button_container)
+
+                        // popup body
+                        //     key Configuration
+                        var keySetting = () => {
+                            popup_content = document.createElement('div')
+                            popup_content.classList.add('popup-content')
+                            popup_container.insertBefore(popup_content, popup_container.children[2])
+                            var makeKeySetting = (name, key, which) => {
+                                var content = document.createElement('div')
+                                content.classList.add('popup-content-element')
+                                var label = document.createElement('div')
+                                label.innerText = name
+                                var buttonContainer = document.createElement('div')
+                                buttonContainer.classList.add('config-buttonSetting-container')
+                                var button = document.createElement('div')
+                                button.id = 'button ' + name
+                                button.classList.add('config-buttonSetting')
+                                button.innerText = key
+                                button.addEventListener('mouseup', () => {
+                                    var temp = this.makeMessagePopUp('Chnage Key')
+                                    var popup = temp[0]
+                                    var content = temp[1]
+                                    content.classList.add('messagePopup-content')
+                                    content.innerText = 'Press Key to Change ' + name + ' Button'
+                                    var onKeyDown = (e) => {
+                                        var setting = keySetting_temp.find(k => k.name == name)
+                                        setting.which = e.which
+                                        setting.key = e.code
+                                        button.innerText = e.code
+                                        document.removeEventListener('keydown', onKeyDown)
+                                        document.body.removeChild(popup)
+                                    }
+                                    document.addEventListener('keydown', onKeyDown)
+                                })
+                                buttonContainer.appendChild(button)
+                                content.append(label, buttonContainer)
+                                return content
+                            }
+                            var defaultButtonContainer = document.createElement('div')
+                            defaultButtonContainer.classList.add('popup-content-element', 'config-default-button-container')
+                            var defaultButton = document.createElement('button')
+                            defaultButton.classList.add('popup-button', 'popup-button-accept')
+                            defaultButton.innerText = 'Default'
+                            defaultButton.addEventListener('mouseup', () => {
+                                KEYSETTING_DEFAULT.forEach(k => {
+                                    keySetting_temp = KEYSETTING_DEFAULT.slice()
+                                    document.getElementById('button ' + k.name).innerText = k.key
+                                })
+                            })
+                            defaultButtonContainer.appendChild(defaultButton)
+                            popup_content.appendChild(defaultButtonContainer)
+                            keySetting_temp.forEach(k => {
+                                var content = makeKeySetting(k.name, k.key, k.which)
+                                popup_content.appendChild(content)
+                            })
+                        }
+
+                        //       Block Configuration
+                        var blockSetting = () => {
+                            var painter = new ConfigurationPainter()
+                            popup_content = document.createElement('div')
+                            popup_content.classList.add('popup-content')
+                            popup_container.insertBefore(popup_content, popup_container.children[2])
+                            var defaultButtonContainer = document.createElement('div')
+                            defaultButtonContainer.classList.add('popup-content-element', 'config-default-button-container')
+                            var defaultButton = document.createElement('button')
+                            defaultButton.classList.add('popup-button', 'popup-button-accept')
+                            defaultButton.innerText = 'Default'
+                            defaultButton.addEventListener('mouseup', () => {
+                                minoSetting_temp = copySetting(MINOOFFSET_DEFAULT)
+                                MINOOFFSET_DEFAULT.forEach(k => {
+                                    var minoBox = document.getElementById('minoBox' + k.minoNumber)
+                                    minoBox.removeChild(minoBox.children[0])
+                                    minoBox.appendChild(painter.drawMino(k.minoNumber, k.color))
+                                    var colorPicker = document.getElementById('colorPicker' + k.minoNumber)
+                                    colorPicker.value = k.color
+                                })
+                            })
+                            defaultButtonContainer.appendChild(defaultButton)
+                            popup_content.appendChild(defaultButtonContainer)
+                            minoSetting_temp.forEach(setting => {
+                                var element = document.createElement('div')
+                                element.classList.add('popup-content-element')
+                                var minoBox = document.createElement('div')
+                                minoBox.id = 'minoBox' + setting.minoNumber
+                                minoBox.appendChild(painter.drawMino(setting.minoNumber, setting.color))
+                                var colorPicker = document.createElement('input')
+                                colorPicker.id = 'colorPicker' + setting.minoNumber
+                                colorPicker.type = 'color'
+                                colorPicker.value = setting.color
+                                colorPicker.onchange = function () {
+                                    minoSetting_temp[setting.minoNumber].color = this.value
+                                    minoBox.removeChild(minoBox.children[0])
+                                    minoBox.appendChild(painter.drawMino(setting.minoNumber, this.value))
+                                }
+                                element.append(minoBox, colorPicker)
+                                popup_content.appendChild(element)
+                            })
+                        }
+
+                        // popup footer
+                        var buttonContainer = document.createElement('div')
+                        buttonContainer.classList.add('popup-button-container')
+                        var accept = document.createElement('button')
+                        accept.classList.add('popup-button', 'popup-button-accept')
+                        accept.innerText = 'CONFIRM'
+                        accept.addEventListener('mouseup', function () {
+                            document.body.removeChild(background)
+                            KEYSETTING = copySetting(keySetting_temp)
+                            KEYSETTING.forEach((setting) => {
+                                storage.updateKeyData(setting)
+                            })
+                            MINOOFFSET = copySetting(minoSetting_temp)
+                            MINOOFFSET.forEach(setting => {
+                                storage.updateColorData({ number: setting.minoNumber, color: setting.color })
+                            })
+                        })
+                        var reject = document.createElement('button')
+                        reject.classList.add('popup-button', 'ppopup-button-reject')
+                        reject.innerText = 'CANCEL'
+                        reject.addEventListener('mouseup', function () {
+                            document.body.removeChild(background)
+                        })
+                        buttonContainer.append(reject, accept)
+                        popup_container.appendChild(buttonContainer)
+                        button1.addEventListener('mouseup', () => {
+                            popup_container.removeChild(popup_content)
+                            keySetting()
+                        })
+                        button2.addEventListener('mouseup', () => {
+                            popup_container.removeChild(popup_content)
+                            blockSetting()
+                        })
+                        keySetting()
+                    }
+                    makeLeaderBoardPopUp() {
+                        var background = this.getPopUpBase("LEADERBOARD")
+                        var popup_container = background.children[0]
+                        var painter = new LeaderBoardPainter()
+                        popup_container.classList.add('popup-container-leaderBoard')
+
+                        // popup body
+                        for (let i = 0; i < 10; i++) {
+                            var rank = LEADERBOARD[i]
+                            var container = document.createElement('div')
+                            container.classList.add('leaderBoard-rank-container')
+                            var medal = document.createElement('div')
+                            medal.classList.add('leaderBoard-rank-medal')
+                            var score_name_box = document.createElement('div')
+
+                            var score = document.createElement('div')
+                            score.classList.add('leaderBoard-rank-text')
+                            score.style.width = '20%'
+                            try {
+                                score.innerText = rank.score
+                            } catch {
+                                score.innerText = ""
+                            }
+                            var lines = document.createElement('div')
+                            lines.classList.add('leaderBoard-rank-text')
+                            lines.style.width = '20%'
+                            try {
+                                lines.innerText = rank.lines + 'Lines'
+                            } catch {
+                                lines.innerText = ''
+                            }
+                            var name = document.createElement('div')
+                            name.classList.add('leaderBoard-rank-text')
+                            try {
+                                name.innerText = rank.name
+                            } catch {
+                                name.innerText = ""
+                            }
+                            switch (i) {
+                                case 0:
+                                    medal.appendChild(painter.drawMedal('gold'))
+                                    break
+                                case 1:
+                                    medal.appendChild(painter.drawMedal('silver'))
+                                    break
+                                case 2:
+                                    medal.appendChild(painter.drawMedal('brown'))
+                                    break
+                            }
+                            var devider = document.createElement('hr')
+                            devider.classList.add('devider-line')
+                            score_name_box.append(name, lines, score)
+                            score_name_box.classList.add('leaderBoard-rank-box')
+                            container.append(medal, score_name_box)
+                            if (i == 9) {
+                                popup_container.append(container)
+                                break
+                            }
+                            popup_container.append(container, devider)
+                        }
+                        // popup footer
+                        var buttonContainer = document.createElement('div')
+                        buttonContainer.classList.add('popup-button-container')
+                        var accept = document.createElement('button')
+                        accept.classList.add('popup-button', 'popup-button-accept')
+                        accept.innerText = 'CLOSE'
+                        accept.addEventListener('mouseup', function () {
+                            document.body.removeChild(background)
+                        })
+                        buttonContainer.appendChild(accept)
+                        popup_container.appendChild(buttonContainer)
+                    }
+
+                    makeCreditPopUp() {
+                        var background = this.getPopUpBase('CREDIT')
+                        var popup_container = background.children[0]
+
+                        // popup body
+                        popup_container.style.display = 'flex'
+                        popup_container.style.flexDirection = 'column'
+
+                        var chapter = document.createElement('label')
+                        chapter.classList.add('popup-chapter')
+                        chapter.innerText = 'Developer'
+                        var content = document.createElement('label')
+                        content.classList.add('popup-content')
+
+                        content.innerText = '\u00A0 \u00A0\u00A0' + '668th 조현빈'
+                        popup_container.append(chapter, content)
+
+                        // popup fotter
+                        var buttonContainer = document.createElement('div')
+                        buttonContainer.classList.add('popup-button-container')
+                        var accept = document.createElement('button')
+
+                        accept.classList.add('popup-button', 'popup-button-accept', 'jelly')
+                        accept.innerText = 'CLOSE'
+                        accept.addEventListener('mouseup', function () {
+                            document.body.removeChild(background)
+                        })
+                        buttonContainer.appendChild(accept)
+                        popup_container.appendChild(buttonContainer)
+                    }
+
+                    makeNewRecordPopup(callback, keyEvent) {
+                        var background = this.getPopUpBase('NEW RECORD')
+                        var popup_container = background.children[0]
+                        background.classList.add('popup-newRecord')
+
+                        // popup body
+                        popup_container.style.display = 'flex'
+                        popup_container.style.flexDirection = 'column'
+                        var chapter = document.createElement('label')
+                        chapter.classList.add('popup-chapter')
+                        chapter.innerText = 'Input Your Name'
+                        var inputBox = document.createElement('input')
+                        inputBox.maxLength = 20
+                        inputBox.classList.add('input-custom')
+                        popup_container.append(chapter, inputBox)
+                        var buttonContainer = document.createElement('div')
+                        buttonContainer.classList.add('popup-button-container')
+
+                        var accept = document.createElement('div')
+                        accept.classList.add('popup-button', 'popup-button-accept', 'jelly')
+                        accept.innerText = 'ACCEPT'
+                        accept.addEventListener('mouseup', function () {
+                            document.body.removeChild(background)
+                            document.addEventListener('keydown', keyEvent)
+                            callback(inputBox.value)
+                        })
+                        buttonContainer.appendChild(accept)
+                        popup_container.appendChild(buttonContainer)
+                    }
+                    makeMessagePopUp(messageTitle) {
+                        var background = document.createElement('div')
+                        background.classList.add('popup-background')
+                        document.body.appendChild(background)
+                        var container = document.createElement('div')
+                        container.classList.add('messagePopup-container')
+                        background.appendChild(container)
+                        var title = document.createElement('h1')
+                        title.classList.add('messagePopup-title')
+                        title.innerText = messageTitle
+                        container.appendChild(title)
+                        return [background, container]
+                    }
+                    makePausePopUp() {
+                        var temp = this.makeMessagePopUp('Pause')
+                        var background = temp[0]
+                        var container = temp[1]
+
+                        var content1 = document.createElement('div')
+                        content1.style.display = 'flex'
+                        content1.classList.add('messagePopup-content')
+                        container.appendChild(content1)
+                        var keyBox1 = document.createElement('div')
+                        keyBox1.classList.add('messagePopup-keyBox')
+                        keyBox1.innerText = 'Space'
+                        var action1 = document.createElement('label')
+                        action1.style.fontSize = '30px'
+                        action1.innerText = 'to Resume'
+                        content1.append(keyBox1, action1)
+
+                        var content2 = document.createElement('div')
+                        content2.style.display = 'flex'
+                        content2.classList.add('messagePopup-content')
+                        container.appendChild(content2)
+                        var keyBox2 = document.createElement('div')
+                        keyBox2.classList.add('messagePopup-keyBox')
+                        keyBox2.innerText = 'Esc'
+                        var action2 = document.createElement('label')
+                        action2.style.fontSize = '30px'
+                        action2.innerText = 'to Menu'
+                        content2.append(keyBox2, action2)
+                        container.append(content1, content2)
+                        return background
+                    }
+                    makeGameOverPopUp() {
+                        var temp = this.makeMessagePopUp('Game Over')
+                        var background = temp[0]
+                        var container = temp[1]
+
+                        var content1 = document.createElement('div')
+                        content1.style.display = 'flex'
+
+                        content1.classList.add('messagePopup-content')
+                        container.appendChild(content1)
+
+                        var keyBox1 = document.createElement('div')
+                        keyBox1.classList.add('messagePopup-keyBox')
+                        keyBox1.innerText = 'Esc'
+                        var action1 = document.createElement('label')
+                        action1.style.fontSize = '30px'
+                        action1.innerText = 'to Menu'
+                        content1.append(keyBox1, action1)
+                        return background
+                    }
+                }
+                class Storage {
+                    constructor() {
+                        this.db = window.openDatabase('Tetris', '1.0','', 200 * 1024 * 1024)
+                        this.openKeySettingTable()
+                        this.openColorSettingTable()
+                        this.openLeaderBoardTable()
+                    }
+                    openKeySettingTable = () => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('CREATE TABLE IF NOT EXISTS KEYSETTING (name, key, which)')
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    openColorSettingTable = () => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('CREATE TABLE IF NOT EXISTS COLOR (number, color)')
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    openLeaderBoardTable = () => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('CREATE TABLE IF NOT EXISTS LEADERBOARD (name, rank, lines, score)')
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    insertKeyData = (setting) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('INSERT INTO KEYSETTING (name, key, which) VALUES(?, ?, ?)', [setting.name, setting.key, setting.which], (tx, result) => {
+                                    console.log(tx, result)
+                                }, (tx, result) => {
+                                    console.error(tx, result)
+                                })
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    getKeyData = (name) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('SELECT * FROM KEYSETTING WHERE name=?', [name], (tx, result) => {
+                                    resolve(result.rows)
+                                }, (tx, result) => {
+                                    reject(tx, result)
+                                })
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    updateKeyData = (setting) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('UPDATE KEYSETTING SET key=?, which=? WHERE name=?', [setting.key, setting.which, setting.name], (tx, result) => {
+                                    console.log(result)
+                                }, (tx, result) => {
+                                    console.log(result)
+                                })
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    insertColorData = (setting) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('INSERT INTO COLOR (number, color) VALUES(?, ?)', [setting.number, setting.color], (tx, result) => {
+                                    console.log(result)
+                                }, (tx, result) => {
+                                    console.log(result)
+                                })
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    updateColorData = (setting) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('UPDATE COLOR SET color=? WHERE number=?', [setting.color, setting.number], (tx, result) => {
+
+                                }, (tx, result) => {
+
+                                })
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    getColorData = (number) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('SELECT * FROM COLOR WHERE number=?', [number], (tx, result) => {
+                                    resolve(result.rows)
+                                }, (tx, result) => {
+                                    reject(tx, result)
+                                })
+                            })
+                        })
+                    }
+                    getRankData = (rank) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('SELECT * FROM LEADERBOARD WHERE rank=?', [rank])
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    insertRankData = (data) => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('INSERT INTO LEADERBOARD (name, rank, lines, score) VALUES(?, ?, ?, ?)', [data.name, data.rank, data.lines, data.score])
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                    deleteAllRankData = () => {
+                        return new Promise((resolve, reject) => {
+                            this.db.transaction(tx => {
+                                tx.executeSql('DELETE FROM LEADERBOARD', [])
+                            }, [], () => {
+                                resolve()
+                            }, () => {
+                                reject()
+                            })
+                        })
+                    }
+                }
+                class LeaderBoardPainter {
+                    constructor() {
+
+                    }
+                    drawMedal(color) {
+                        var canvas = document.createElement('canvas')
+                        canvas.width = 30
+                        canvas.height = 30
+                        var ctx = canvas.getContext('2d')
+                        ctx.beginPath()
+                        ctx.strokeStyle = 'blue'
+                        ctx.lineWidth = 8
+                        ctx.moveTo(15, 15)
+                        ctx.lineTo(30, 0)
+                        ctx.stroke()
+                        ctx.moveTo(15, 15)
+                        ctx.lineTo(0, 0)
+                        ctx.stroke()
+                        ctx.moveTo(15, 15)
+                        ctx.fillStyle = color
+                        ctx.arc(15, 15, 8, 0, 2 * Math.PI)
+                        ctx.fill()
+                        ctx.closePath()
+                        return canvas
+                    }
+                }
+
+                class ConfigurationPainter {
+                    constructor() { }
+                    drawMino(number, color) {
+                        var canvas = document.createElement('canvas')
+                        canvas.width = 100
+                        canvas.height = 50
+                        var ctx = canvas.getContext('2d')
+                        ctx.clearRect(0, 0, 100, 100)
+                        var mino = MINOOFFSET[number]
+                        ctx.fillStyle = color
+                        mino.shape[0].forEach((e, i) => {
+                            e.forEach((f, k) => {
+                                if (f) {
+                                    ctx.fillRect((1 + k) * (SMALLWIDTH + 1), i * (SMALLWIDTH + 1), SMALLWIDTH, SMALLWIDTH)
+                                }
+                            })
+                        })
+                        return canvas
+                    }
+                }
+                var main = new Main()
+        </script>
+    </body>
+</html>
