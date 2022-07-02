@@ -177,15 +177,15 @@
                 justify-content: center;
                 background: rgba(0,0,0,0.3);
                 user-select: none;
+                align-items: center;
             }
             .popup-container {
-                height: fit-content;
                 width: 500px;
+                height: fit-content;
                 max-height: 100%;
                 border-radius: 4px;
                 box-shadow: 0 12.8px 28.8px rgb(0 0 0 / 14%), 0px 0px 9.2px rgb(0 0 0 / 12%);
                 background: #FFFFFF;
-                margin-top: auto;
                 padding: 16px;
                 animation-name: popup;
                 animation-duration: .25s;
@@ -862,13 +862,14 @@
                         this.controller.cancelAutoDown()
                         var popup = this.popup.makePausePopUp()
                         var keyEvent = (e) => {
+                            
                             if (e.which == 32) {
                                 document.body.removeChild(popup)
                                 this.gameResume()
                                 document.removeEventListener('keydown', keyEvent)
                             }
-                            else if (e, which == 27) {
-                                this.menu, showMenu(this.gameStart.bind(this))
+                            else if (e.which == 27) {
+                                this.menu.showMenu(this.gameStart.bind(this))
                                 this.controller = undefined
                                 document.body.removeChild(popup)
                                 document.removeEventListener('keydown', keyEvent)
