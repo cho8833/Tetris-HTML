@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+
+    <style>
+        body {
+            user-select: none;
+        }
+
+        canvas {
+            border-radius: 6px;
+        }
+
+        label {
+            font-size: 20px;
+            width: 100%;
+        }
+
+        .jelly {
+            top: 90%;
+            left: 90%;
+            animation-duration: .3s;
+            animation-name: jelly;
+            animation-timing-function: ease;
+            animation-iteration-count: infinite;
+        }
+
+        #game-ui {
+            display: flex;
+            justify-content: center;
+        }
+
+        #stage {
+            position: relative;
+            border: 2px solid white;
+            border-radius: 5px;
+            height: 1063px;
+            width: 533px;
+            background: #EEEEEE;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mino {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            margin: 2px;
+            border-radius: 6px;
+            z-index: 2;
+        }
+
+        .shadow {
+            z-index: 1;
+        }
+
+        .leftSideContainer {
+            margin: 30px;
+        }
+
+        .scoreContainer {
+            width: 160px;
+            height: 100px;
+            background: rgb(185 235 127);
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        .scoreTitle {
+            width: 100%;
+            height: 40px;
+            background: rgb(135 185 77);
+            border-radius: 5px;
+            display: flex;
+        }
+
+        .score-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .lineContainer {
+            widtH: 160px;
+            height: 100px;
+            background: rgb(255 251 132);
+            border-radius: 5px;
+        }
+
+        .lineTitle {
+            width: 160px;
+            height: 40px;
+            background: rgb(255 213 3);
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .holdContainer {
+            width: 160px;
+            height: 200px;
+            background: #dee4ff;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+
+        .gameUILabel {
+            font-weight: 600;
+            font-size: 28px;
+            text-align: center;
+        }
+
+        .holdTitle {
+            width: 100%;
+            height: 40px;
+            background: #5490ff;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hold-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .previewContainer {
+            width: 160px;
+            height: 480px;
+            background: #ffa8cd;
+            border-radius: 5px;
+            margin: 30px;
+        }
+
+        .previewTitle {
+            width: 100%;
+            height: 40px;
+            background: #ff6e6e;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .menuButtonContainer {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .menuButton {
+            font-weight: 600;
+            font-size: 40px;
+            width: 350px;
+            height: 50px;
+            border-radius: 10px;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            transition: all .25s ease;
+        }
+
+        .menuButton:hover {
+            transform: scale(0.9, 0.9);
+        }
+
+        .startGameButton {
+            background: rgba(204, 204, 255, 1);
+            border: 5px solid rgb(154, 154, 205);
+            color: rgb(104, 104, 155);
+        }
+
+        .configButton {
+            background: rgba(255, 153, 204, 1);
+            border: 5px solid rgb(205, 103, 154);
+            color: rgb(155, 53, 104);
+        }
+
+        .leaderBoardButton {
+            background: rgba(204, 153, 255, 1);
+            border: 5px solid rgb(154, 103, 205);
+            color: rgb(104, 53, 155);
+        }
+
+        .creditButton {
+            background: rgb(84, 144, 255);
+            color: rgb(34, 94, 205);
+            border: 5px solid rgb(34, 94, 205);
+        }
+
+        .popup-background {
+            z-index: 13;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            user-select: none;
+            align-items: center;
+        }
+
+        .popup-container {
+            width: 500px;
+            height: fit-content;
+            max-height: 100%;
+            border-radius: 4px;
+            box-shadow: 0 12.8px 28.8px rgb(0 0 0 / 14%), 0px 0px 9.2px rgb(0 0 0 / 12%);
+            background: #FFFFFF;
+            padding: 16px;
+            animation-name: popup;
+            animation-duration: .25s;
+            animation-timing-function: ease;
+        }
+
+        .popup-container-leaderBoard {
+            width: 800px;
+        }
+
+        .popup-top {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .popup-title {
+            font-size: 30px;
+            line-height: 28px;
+            color: #2B2B2B;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .popup-content {
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .popup-content-element {
+            width: 100%;
+            height: fit-content;
+            display: flex;
+            margin: 10px;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+
+        .config-buttonSetting-container {
+            width: 40%;
+        }
+
+        .config-buttonSetting {
+            width: fit-content;
+            height: 100%;
+            font-size: 20px;
+            margin-left: 10px;
+            border: 2px solid #8B8B8B;
+            border-radius: 5px;
+            padding: 5px;
+            color: #ABABAB;
+            cursor: pointer;
+        }
+
+        .popup-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .popup-button {
+            width: 40%;
+            height: 50px;
+            display: flex;
+            font-size: 22px;
+            justify-content: center;
+            padding: 6px 0 6px 0;
+            border-radius: 7px;
+            border: 0;
+            font-weight: 600;
+            margin-right: 10px;
+            transition: background .5s ease;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .popup-button-accept {
+            background: #0078D4;
+            color: white;
+        }
+
+        .popup-chapter {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 10px;
+        }
+
+        .popup-content {
+            font-size: 20px;
+            margin: 10px;
+        }
+
+        .popup-newRecord {
+            z-index: 19;
+        }
+
+        .config-change-button {
+            background: transparent;
+            cursor: pointer;
+            border: 0;
+            border-radius: 5px;
+            transition: background .5s ease;
+            padding: 10px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        .config-change-button:hover {
+            background: #EAEAEA;
+        }
+
+        .config-default-button-container {
+            display: flex;
+        }
+
+        .messagePopup-background {
+            z-index: 18;
+            user-select: none;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            position: fixed;
+            justify-content: center;
+            background: rgba(40, 40, 40, 0.5);
+        }
+
+        .messagePopup-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            width: fit-content;
+            height: 100%;
+        }
+
+        .messagePopup-title {
+            font-size: 70px;
+            color: white;
+            font-weight: 650;
+            text-align: center;
+        }
+
+        .messagePopup-content {
+            color: white;
+            font-size: 30px;
+            font-weight: 550;
+            margin-bottom: 12px;
+        }
+
+        .messagePopup-keyBox {
+            border: 2px solid #FFFFFF;
+            border-radius: 4px;
+            color: white;
+            margin-right: 10px;
+            padding: 0px 10px 0px 10px;
+        }
+
+        .devider-line {
+            height: 0;
+            width: 100%;
+            border: none;
+            border-top: 1px solid #E2E2E2;
+        }
+
+        .leaderBoard-rank-container {
+            width: 100%;
+            height: 40px;
+            display: flex;
+        }
+
+        .leaderBoard-rank-medal {
+            height: 100%;
+            width: 7%;
+            display: flex;
+            align-items: center;
+        }
+
+        .leaderBoard-rank-box {
+            width: 93%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+        }
+
+        .leaderBoard-rank-text {
+            font-size: 20px;
+            margin-right: 30px;
+            width: 60%;
+        }
+
+        .clearMessage {
+            font-size: 40px;
+            color: #F3CC00;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .clearMessageContainer {
+            position: absolute;
+            top: 50%;
+            z-index: 3;
+            animation-name: slideUp;
+            animation-duration: 1.5s;
+            animation-timing-function: cubic-bezier(0.48, -0.01, 0, 0.99);
+        }
+
+        .input-custom {
+            font-size: 20px;
+            height: 40px;
+            width: 450px;
+            padding-left: 5px;
+            border: 0;
+            transition: all .2s ease;
+            border-bottom: 1px solid #8D8D8D;
+            border-radius: 4px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-custom:hover {
+            box-shadow: 0px 12.8px 28.8px rgb(0 0 0 / 14%), 0px 0px 9.2px rgb(0 0 0 / 12%);
+        }
+
+        .input-custom:focus {
+            outline: none;
+            background: #E8E8E8;
+        }
+
+        @keyframes popup {
+            0% {
+                transform: scale(1.1, 0.9);
+            }
+
+            50% {
+                transform: scale(1.2, 0.8);
+            }
+
+            100% {
+                transform: scale(1, 1);
+            }
+        }
+
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                top: 55%;
+            }
+
+            20% {
+                opacity: 1;
+                top: 50%;
+            }
+
+            90% {
+                opacity: 1;
+                top: 50%;
+            }
+
+            100% {
+                opacity: 0;
+                top: 45%;
+            }
+        }
+
+        @keyframes stack {
+            0% {
+                transform: scale(1.3, 0.9);
+                border-radius: 12px;
+            }
+
+            50% {
+                transform: scale(1, 1);
+                border-radius: 6px;
+            }
+        }
+
+        @keyframes jelly {
+            0% {
+                transform: scale(1.1, 0.9);
+                border-radius: 10px;
+            }
+
+            50% {
+                transform: scale(1.2, 0.8);
+                border-radius: 20px;
+            }
+
+            100% {
+                transform: scale(1, 1);
+                border-radius: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-ui">
+        <div class="leftSideContainer">
+            <div class="holdContainer">
+                <div class="holdTitle">
+                    <label class="gameUILabel">Hold</label>
+                </div>
+                <div class="hold-view">
+                    <canvas id="hold"></canvas>
+                </div>
+            </div>
+            <div class="scoreContainer">
+                <div class="scoreTitle">
+                    <label class="gameUILabel">Score</label>
+                </div>
+                <div id="score" class="score-view gameUILabel"></div>
+            </div>
+            <div class="lineContainer">
+                <div class="lineTitle">
+                    <label class="gameUILabel">Line</label>
+                </div>
+                <div id="line" class="line-view gameUILabel"></div>
+            </div>
+        </div>
+        <div id="preview_container" class="previewContainer">
+            <div class="previewTitle">
+                <label class="gameUILabel">Next</label>
+            </div>
+            <div class="preview-view">
+                <canvas id="preview" width=160 height=440></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="constants.js"></script>
+
+    <script src="painter/ShadowPainter.js"></script>
+    <script src="painter/PreviewPainter.js"></script>
+    <script src="painter/HoldPainter.js"></script>
+    <script src="painter/LeaderBoardPainter.js"></script>
+    <script src="painter/ConfigurationPainter.js"></script>
+
+    <script src="system/LevelSystem.js"></script>
+    <script src="system/ScoreIndicator.js"></script>
+    <script src="system/Storage.js"></script>
+
+    <script src="tetris/MinoPreview.js"></script>
+    <script src="tetris/MinoHolder.js"></script>
+    <script src="tetris/Board.js"></script>
+    <script src="tetris/MinoController.js"></script>
+
+    <script src="ui/PopUp.js"></script>
+    <script src="ui/Menu.js"></script>
+
+    <script>
+        class Main {
+            constructor() {
+                this.controller = undefined
+                this.gameKeyEvent = this.keyEvent.bind(this)
+                this.storage = new Storage()
+                this.popup = new PopUp()
+                this.menu = new Menu(this.popup, this.storage)
+                this.keyFn = undefined
+                this.initialize()
+            }
+            initialize() {
+                this.menu.showMenu(this.gameStart.bind(this))
+                KEYSETTING.forEach((setting, i) => {
+                    this.storage.getKeyData(setting.name).then((e) => {
+                        if (!e.length) {
+                            this.storage.insertKeyData(setting)
+                        }
+                        else {
+                            KEYSETTING[i] = e[0]
+                        }
+                    })
+                })
+                for (let i = 0; i < 10; i++) {
+                    this.storage.getRankData(i).then((rank) => {
+                        if (rank != undefined) {
+                            LEADERBOARD.push(rank[0])
+                        }
+                    })
+                }
+                MINOOFFSET.forEach((offset, i) => {
+                    this.storage.getColorData(offset.minoNumber).then((e) => {
+                        if (e.length == 0) {
+                            this.storage.insertColorData({ number: offset.minoNumber, color: offset.color })
+                        }
+                        else {
+                            console.log(e)
+                            MINOOFFSET[i].color = e[0].color
+                        }
+                    })
+                })
+            }
+            bindGameKeyEvent() {
+                document.addEventListener('keydown', this.gameKeyEvent)
+            }
+            removeGameKeyEvent() {
+                document.removeEventListener('keydown', this.gameKeyEvent)
+            }
+            keyEvent(e) {
+                var index = KEYSETTING.findIndex(k => k.which == e.which)
+                try {
+                    this.keyFn[index]()
+                } catch { }
+            }
+            gamePause() {
+                this.removeGameKeyEvent()
+                this.controller.cancelAutoDown()
+                var popup = this.popup.makePausePopUp()
+                var keyEvent = (e) => {
+                
+                    if (e.which == 32) {
+                        document.body.removeChild(popup)
+                        this.gameResume()
+                        document.removeEventListener('keydown', keyEvent)
+                    }
+                    else if (e.which == 27) {
+                        this.menu.showMenu(this.gameStart.bind(this))
+                        this.controller = undefined
+                        document.body.removeChild(popup)
+                        document.removeEventListener('keydown', keyEvent)
+                    }
+                }
+                document.addEventListener('keydown', keyEvent)
+            }
+            gameStart() {
+                var stage = document.getElementById('stage')
+                for (let i = 0; i < stage.children.length; i++) {
+                    stage.removeChild(stage.children[i])
+                }
+                this.controller = new MinoController()
+                this.controller.spawnMino()
+                this.keyFn = [
+                    this.controller.moveRight.bind(this.controller),
+                    this.controller.moveLeft.bind(this.controller),
+                    this.controller.moveDown.bind(this.controller),
+                    this.controller.clockWiseRotate.bind(this.controller),
+                    this.controller.counterClockWiseRotate.bind(this.controller),
+                    this.controller.hardDrop.bind(this.controller),
+                    this.controller.holdMino.bind(this.controller),
+                    this.gamePause.bind(this)
+                ]
+                this.bindGameKeyEvent()
+            }
+            gameResume() {
+                this.bindGameKeyEvent()
+                this.controller.startAutoDown()
+            }
+            gameOver(score, lines) {
+                this.removeGameKeyEvent()
+                this.controller.cancelAutoDown()
+
+                var popup = this.popup.makeGameOverPopUp()
+
+                var keyEvent = (e) => {
+                    if (e.which == 27) {
+                        document.body.removeChild(popup)
+                        document.removeEventListener('keydown', keyEvent)
+                        this.menu.showMenu(this.gameStart.bind(this))
+                    }
+                }
+                var rank = undefined
+                for (let i = 9; i >= 0; i--) {
+                    if (score == 0) {
+                        break
+                    }
+                    var temp = LEADERBOARD[i] ? Math.max(LEADERBOARD[i].score, score) : score
+                    if (temp == score) {
+                        if (i == 0) {
+                            rank = 0
+                            break
+                        }
+                    }
+                    else {
+                        if (i == 9) {
+                            break
+                        }
+                        rank = i + 1
+                    }
+                }
+                if (rank != undefined) {
+                    setTimeout(() => {
+                        this.popup.makeNewRecordPopup((name) => {
+                            var length = LEADERBOARD.length
+                            for (let i = length - 1; i >= rank; i--) {
+                                LEADERBOARD[i + 1] = Object.assign({}, LEADERBOARD[i])
+                                LEADERBOARD[i + 1].rank = i + 1
+                            }
+                            LEADERBOARD[rank] = { name: name, score: score, lines: lines, rank: rank }
+                            this.storage.deleteAllRankData().then(() => {
+                                LEADERBOARD.forEach((rank) => {
+                                    this.storage.insertRankData(rank)
+                                })
+                            })
+                        }, keyEvent)
+                    }, 1000)
+                }
+                else {
+                    document.addEventListener('keydown', keyEvent)
+                }
+            }
+        }
+        var main = new Main()
+    </script>
+</body>
+
+</html>
